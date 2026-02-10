@@ -1,12 +1,21 @@
-FROM node:20-slim
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg python3 python3-pip ca-certificates \
-  && pip3 install --no-cache-dir yt-dlp \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+FROM node:20-alpine
+
+# System deps (no apt-get)
+RUN apk add --no-cache \
+  python3 py3-pip ffmpeg ca-certificates \
+  && pip3 install --no-cache-dir -U yt-dlp
+
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
 COPY . .
+
 ENV NODE_ENV=production
-EXPOSE 10000
-CMD ["npm","start"]
+ENV HOST=0.0.0.0
+ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["node", "server.js"]
