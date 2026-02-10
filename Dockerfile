@@ -1,12 +1,12 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache \
-  python3 ffmpeg ca-certificates yt-dlp
+# ffmpeg + yt-dlp from apk (no pip)
+RUN apk add --no-cache python3 ffmpeg ca-certificates yt-dlp
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 COPY . .
 
