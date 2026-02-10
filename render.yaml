@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: youtube-channel-media-backend
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: YOUTUBE_API_KEY
+        sync: false
