@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Channel Media Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#121212;
+      --muted:#5b5b5b;
+      --border:#e6e6e6;
+      --primary:#ff002b;
+      --btn:#1e1e1e;
+      --btnText:#ffffff;
+      --shadow: 0 8px 30px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+    body.dark{
+      --bg:#121212;
+      --card:#1e1e1e;
+      --text:#f0f0f0;
+      --muted:#b7b7b7;
+      --border:#2b2b2b;
+      --btn:#333333;
+      --btnText:#ffffff;
+      --shadow: 0 10px 34px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Alexandria, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:22px auto;padding:0 16px}
+    .top{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;box-shadow:var(--shadow);
+    }
+    .top h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.2px}
+    .spacer{flex:1}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
+    input{
+      padding:12px 12px;border-radius:12px;border:1px solid var(--border);
+      background:transparent;color:var(--text);min-width:280px;flex:1;
+      outline:none;
+    }
+    button{
+      border:none;border-radius:12px;padding:12px 14px;
+      background:var(--btn);color:var(--btnText);cursor:pointer;
+      font-weight:700;
+    }
+    button.secondary{
+      background:transparent;color:var(--text);
+      border:1px solid var(--border);
+    }
+    button.primary{background:var(--primary);color:#fff}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+    .tab{
+      padding:10px 12px;border:1px solid var(--border);border-radius:999px;
+      background:var(--card);cursor:pointer;font-weight:700;color:var(--text)
+    }
+    .tab.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,0,43,.15)}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap:14px;
+    }
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden;box-shadow:var(--shadow);
+      display:flex;flex-direction:column;
+    }
+    .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+    .cbody{padding:12px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:700;font-size:13px;line-height:1.3}
+    .meta{font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .btns button{padding:10px 11px;font-size:12px;border-radius:10px}
+    .footer{
+      margin:26px 0 18px;
+      color:var(--muted);font-size:12px;text-align:center;
+    }
+    .toast{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:18px;background:var(--card);border:1px solid var(--border);
+      box-shadow:var(--shadow);padding:10px 12px;border-radius:12px;
+      max-width:90vw;font-size:12px;color:var(--text);display:none;
+    }
+    .small{font-size:12px;color:var(--muted);margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>YouTube Channel Media Tool</h1>
+      <div class="spacer"></div>
+      <button id="themeBtn" class="secondary" type="button">Dark</button>
+      <button id="resetBtn" class="secondary" type="button">Reset</button>
+      <button id="downloadAllBtn" class="primary" type="button" disabled>Download Page (ZIP)</button>
+
+      <div class="row" style="margin-top:10px">
+        <input id="channelInput" placeholder="Paste Channel URL, Channel ID (UC...), or @handle" />
+        <button id="loadBtn" class="primary" type="button">Load</button>
+      </div>
+      <div class="row">
+        <div class="small" id="status"></div>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs" style="display:none">
+      <div class="tab active" data-tab="long">Long</div>
+      <div class="tab" data-tab="shorts">Shorts</div>
+      <div class="tab" data-tab="playlists">Playlists</div>
+    </div>
+
+    <div id="content"></div>
+
+    <div class="footer">© 2026 Alfan Co. – Designed and developed by Ramy Maraei</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // IMPORTANT: No API keys here. The backend holds all secrets.
+  const API_BASE = "REPLACE_WITH_BACKEND_URL"; // example: https://your-app.onrender.com
+
+  const els = {
+    themeBtn: document.getElementById('themeBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    loadBtn: document.getElementById('loadBtn'),
+    channelInput: document.getElementById('channelInput'),
+    tabs: document.getElementById('tabs'),
+    content: document.getElementById('content'),
+    status: document.getElementById('status'),
+    toast: document.getElementById('toast'),
+    downloadAllBtn: document.getElementById('downloadAllBtn'),
+  };
+
+  const state = {
+    tab: "long",
+    channelRef: "",
+    data: null
+  };
+
+  function toast(msg){
+    els.toast.textContent = msg;
+    els.toast.style.display = "block";
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(()=> els.toast.style.display="none", 2600);
+  }
+
+  function setTheme(mode){
+    if(mode === "dark"){
+      document.body.classList.add("dark");
+      els.themeBtn.textContent = "Light";
+      localStorage.setItem("theme","dark");
+    }else{
+      document.body.classList.remove("dark");
+      els.themeBtn.textContent = "Dark";
+      localStorage.setItem("theme","light");
+    }
+  }
+  (function initTheme(){
+    const saved = localStorage.getItem("theme");
+    if(saved === "dark") setTheme("dark");
+    else setTheme("light"); // default Light
+  })();
+
+  els.themeBtn.addEventListener("click", ()=>{
+    const isDark = document.body.classList.contains("dark");
+    setTheme(isDark ? "light" : "dark");
+  });
+
+  els.resetBtn.addEventListener("click", ()=>{
+    state.tab = "long";
+    state.data = null;
+    state.channelRef = "";
+    els.channelInput.value = "";
+    els.tabs.style.display = "none";
+    els.content.innerHTML = "";
+    els.status.textContent = "";
+    els.downloadAllBtn.disabled = true;
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelector('.tab[data-tab="long"]').classList.add("active");
+  });
+
+  document.getElementById("tabs").addEventListener("click", (e)=>{
+    const tab = e.target?.dataset?.tab;
+    if(!tab) return;
+    state.tab = tab;
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===tab));
+    render();
+  });
+
+  async function api(path, opts={}){
+    const url = API_BASE.replace(/\/$/,'') + path;
+    const res = await fetch(url, opts);
+    if(!res.ok){
+      const text = await res.text().catch(()=> "");
+      throw new Error(text || ("HTTP " + res.status));
+    }
+    return res;
+  }
+
+  function normalizeFilename(name){
+    return (name || "file")
+      .replace(/[\\/:*?"<>|]+/g,' ')
+      .replace(/\s+/g,' ')
+      .trim()
+      .slice(0, 160);
+  }
+
+  function renderCards(items, kind){
+    if(!items?.length){
+      els.content.innerHTML = '<div class="small" style="margin-top:14px">No items found.</div>';
+      return;
+    }
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    items.forEach(item=>{
+      const card = document.createElement("div");
+      card.className = "card";
+      const img = document.createElement("img");
+      img.className = "thumb";
+      img.loading = "lazy";
+      img.src = item.thumbnail;
+      img.alt = item.title || "";
+      const body = document.createElement("div");
+      body.className = "cbody";
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = item.title || "";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      if(kind !== "playlists"){
+        meta.innerHTML = `<span>Video ID: <b>${item.videoId}</b></span><span>Duration: <b>${item.durationText}</b></span>`;
+      }else{
+        meta.innerHTML = `<span>Playlist ID: <b>${item.playlistId}</b></span><span>Items: <b>${item.itemCount ?? "-"}</b></span>`;
+      }
+
+      const btns = document.createElement("div");
+      btns.className = "btns";
+
+      if(kind !== "playlists"){
+        const b1 = document.createElement("button");
+        b1.textContent = "Thumbnail";
+        b1.className = "secondary";
+        b1.addEventListener("click", async ()=>{
+          try{
+            b1.disabled = true;
+            const r = await api(`/download/thumbnail?videoId=${encodeURIComponent(item.videoId)}`);
+            const blob = await r.blob();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = normalizeFilename(item.title) + ".jpg";
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+          }catch(err){ toast("Thumbnail download failed"); }
+          finally{ b1.disabled = false; }
+        });
+
+        const b2 = document.createElement("button");
+        b2.textContent = "Video";
+        b2.addEventListener("click", ()=>{
+          window.location.href = API_BASE.replace(/\/$/,'') + `/download/video?videoId=${encodeURIComponent(item.videoId)}`;
+        });
+
+        const b3 = document.createElement("button");
+        b3.textContent = "Audio";
+        b3.addEventListener("click", ()=>{
+          window.location.href = API_BASE.replace(/\/$/,'') + `/download/audio?videoId=${encodeURIComponent(item.videoId)}`;
+        });
+
+        btns.appendChild(b1); btns.appendChild(b2); btns.appendChild(b3);
+      } else {
+        const b = document.createElement("button");
+        b.textContent = "Open";
+        b.className = "secondary";
+        b.addEventListener("click", ()=>{
+          window.open(`https://www.youtube.com/playlist?list=${item.playlistId}`, "_blank");
+        });
+        btns.appendChild(b);
+      }
+
+      body.appendChild(title);
+      body.appendChild(meta);
+      body.appendChild(btns);
+      card.appendChild(img);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+    els.content.innerHTML = "";
+    els.content.appendChild(grid);
+  }
+
+  function render(){
+    if(!state.data) return;
+    els.tabs.style.display = "flex";
+    if(state.tab === "long") renderCards(state.data.long, "long");
+    else if(state.tab === "shorts") renderCards(state.data.shorts, "shorts");
+    else renderCards(state.data.playlists, "playlists");
+  }
+
+  els.downloadAllBtn.addEventListener("click", ()=>{
+    if(!state.channelRef) return;
+    const url = API_BASE.replace(/\/$/,'') + `/download/pagezip?channel=${encodeURIComponent(state.channelRef)}`;
+    window.location.href = url;
+  });
+
+  els.loadBtn.addEventListener("click", async ()=>{
+    const ref = els.channelInput.value.trim();
+    if(!ref){ toast("Paste channel link or ID"); return; }
+    state.channelRef = ref;
+    els.status.textContent = "Loading...";
+    els.downloadAllBtn.disabled = true;
+    try{
+      const r = await api(`/channel?ref=${encodeURIComponent(ref)}`);
+      const data = await r.json();
+      state.data = data;
+      els.status.textContent = data.channelTitle ? `Loaded: ${data.channelTitle}` : "Loaded.";
+      els.downloadAllBtn.disabled = false;
+      render();
+    }catch(err){
+      els.status.textContent = "Failed to load channel.";
+      toast("Failed to load channel");
+    }
+  });
+</script>
+</body>
+</html>
