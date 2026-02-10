@@ -268,5 +268,6 @@ app.get("/download/pagezip", async (req,res)=>{
   }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, ()=> console.log("Server listening on " + PORT));
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, "0.0.0.0", () => console.log("Listening on " + PORT));
+
