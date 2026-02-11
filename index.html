@@ -1,277 +1,151 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>YouTube Channel Media Tool</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
     :root{
-      /* Light default (as you want) */
-      --bg:#ffffff;
-      --text:#000000;
-      --box:#f5f5f5;
-      --button:#e0e0e0;
-      --link:#1a0dab;
-
-      --red:#ff002b;
-      --accent:#f4f0ed;
-      --border:#d9d9d9;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#121212;
+      --muted:#5b5b5b;
+      --border:#e6e6e6;
+      --primary:#ff002b;
+      --btn:#1e1e1e;
+      --btnText:#ffffff;
+      --shadow: 0 8px 30px rgba(0,0,0,.08);
+      --radius:14px;
     }
-
     body.dark{
       --bg:#121212;
+      --card:#1e1e1e;
       --text:#f0f0f0;
-      --box:#1e1e1e;
-      --button:#333333;
-      --link:#7abaff;
+      --muted:#b7b7b7;
       --border:#2b2b2b;
+      --btn:#333333;
+      --btnText:#ffffff;
+      --shadow: 0 10px 34px rgba(0,0,0,.35);
     }
-
     *{box-sizing:border-box}
-
     body{
-      font-family:'Alexandria',sans-serif;
+      margin:0;
+      font-family: Alexandria, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:var(--bg);
       color:var(--text);
-      padding:20px;
-      margin:0;
-      transition:all .25s ease;
+    }
+    .wrap{max-width:1100px;margin:22px auto;padding:0 16px}
+    .top{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px;box-shadow:var(--shadow);
     }
 
-    .top-tools{
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-      font-size:13px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-
-    .tool-button{
-      background:none;
-      border:none;
-      color:var(--text);
-      cursor:pointer;
-      font-size:13px;
-      padding:5px 10px;
-      border-radius:5px;
-    }
-
-    .tool-button:hover{
-      background:var(--button);
-    }
-
-    .logo-wrap{
+    /* Brand centered */
+    .brandRow{
+      width:100%;
       display:flex;
       justify-content:center;
-      margin:8px 0 10px;
+      align-items:center;
+      margin:2px 0 8px;
     }
-
-    .logo{
+    .brandRow img{
+      height:32px;
+      width:auto;
       display:block;
-      max-width:160px;
-      height:auto;
     }
 
-    h1{
-      text-align:center;
-      margin:0 0 16px;
-      font-weight:700;
-      font-size:18px;
-    }
-
-    .controls{
-      text-align:center;
-      margin-bottom:14px;
-    }
-
-    .controls-row{
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    input[type="text"]{
-      padding:10px;
-      margin:5px;
-      border-radius:5px;
-      border:1px solid var(--border);
-      background:var(--box);
-      color:var(--text);
-      font-family:'Alexandria',sans-serif;
-      min-width:320px;
+    .spacer{flex:1}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%}
+    input{
+      padding:12px 12px;border-radius:12px;border:1px solid var(--border);
+      background:transparent;color:var(--text);min-width:280px;flex:1;
       outline:none;
     }
-
     button{
-      padding:10px 20px;
-      margin:5px;
-      font-size:16px;
-      background:var(--button);
-      color:var(--text);
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-      font-family:'Alexandria',sans-serif;
-      transition:filter .15s ease;
-    }
-
-    button:hover{filter:brightness(.92)}
-    body.dark button:hover{filter:brightness(1.18)}
-
-    .primary{
-      background:var(--red);
-      color:#fff;
-    }
-    .primary:hover{filter:brightness(.95)}
-    body.dark .primary:hover{filter:brightness(1.05)}
-
-    button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-      filter:none;
-    }
-
-    .status{
-      margin-top:8px;
-      font-size:13px;
-      color:gray;
-      min-height:18px;
-    }
-
-    .tabs{
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-      margin:16px 0 8px;
-    }
-
-    .tab-btn{
-      padding:10px 18px;
-      border-radius:999px;
-      background:var(--button);
-      color:var(--text);
-      font-size:14px;
-      margin:0;
-    }
-
-    .tab-btn.active{
-      background:var(--red);
-      color:#fff;
-    }
-
-    .videos-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:20px;
-      margin-top:18px;
-    }
-
-    .video{
-      background:var(--box);
-      padding:15px;
-      border-radius:12px;
-      box-shadow:0 0 10px rgba(0,0,0,.08);
-    }
-    body.dark .video{
-      box-shadow:0 0 10px rgba(255,255,255,.08);
-    }
-
-    .video img{
-      width:100%;
-      border-radius:10px;
-      display:block;
-    }
-
-    .video-title{
+      border:none;border-radius:12px;padding:12px 14px;
+      background:var(--btn);color:var(--btnText);cursor:pointer;
       font-weight:700;
-      font-size:15px;
-      margin-top:10px;
-      line-height:1.35;
     }
-
-    .video-meta{
-      font-size:13px;
-      color:gray;
-      margin-top:6px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .btn-row{
-      margin-top:10px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    footer{
-      text-align:center;
-      padding:18px 10px 6px;
-      font-size:14px;
-      color:gray;
-      margin-top:22px;
-    }
-
-    .toast{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:18px;
-      background:var(--box);
+    button.secondary{
+      background:transparent;color:var(--text);
       border:1px solid var(--border);
-      padding:10px 12px;
-      border-radius:10px;
-      max-width:90vw;
-      font-size:12px;
-      color:var(--text);
-      display:none;
-      box-shadow:0 10px 24px rgba(0,0,0,.12);
     }
-    body.dark .toast{box-shadow:0 10px 24px rgba(0,0,0,.45)}
+    button.primary{background:var(--primary);color:#fff}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
+    .tab{
+      padding:10px 12px;border:1px solid var(--border);border-radius:999px;
+      background:var(--card);cursor:pointer;font-weight:700;color:var(--text)
+    }
+    .tab.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,0,43,.15)}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap:14px;
+    }
+    .card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden;box-shadow:var(--shadow);
+      display:flex;flex-direction:column;
+    }
+    .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000}
+    .cbody{padding:12px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:700;font-size:13px;line-height:1.3}
+    .meta{font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .btns button{padding:10px 11px;font-size:12px;border-radius:10px}
+    .footer{
+      margin:26px 0 18px;
+      color:var(--muted);font-size:12px;text-align:center;
+    }
+    .toast{
+      position:fixed;left:50%;transform:translateX(-50%);
+      bottom:18px;background:var(--card);border:1px solid var(--border);
+      box-shadow:var(--shadow);padding:10px 12px;border-radius:12px;
+      max-width:90vw;font-size:12px;color:var(--text);display:none;
+    }
+    .small{font-size:12px;color:var(--muted);margin-top:8px}
   </style>
 </head>
-
 <body>
-  <div class="top-tools">
-    <button id="themeBtn" class="tool-button" type="button">Dark</button>
-    <button id="resetBtn" class="tool-button" type="button">Reset</button>
-    <button id="downloadAllBtn" class="tool-button" type="button" disabled>Download All Content</button>
+  <div class="wrap">
+    <div class="top">
 
-  </div>
+      <div class="brandRow">
+        <img id="brandLogo" alt="ALFAN" />
+      </div>
 
-  <div class="logo-wrap">
-    <img id="brandLogo" class="logo" alt="ALFAN">
-  </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%">
+        <div class="spacer"></div>
+        <button id="themeBtn" class="secondary" type="button">Dark</button>
+        <button id="resetBtn" class="secondary" type="button">Reset</button>
+        <button id="downloadAllBtn" class="primary" type="button" disabled>Download All Content</button>
+      </div>
 
-  <h1>YouTube Channel Media Tool</h1>
+      <div class="row" style="margin-top:10px">
+        <input id="channelInput" placeholder="Paste Channel URL, Channel ID (UC...), or @handle" />
+        <button id="loadBtn" class="primary" type="button">Load</button>
+      </div>
 
-  <div class="controls">
-    <div class="controls-row">
-      <input id="channelInput" type="text" placeholder="Paste Channel URL, Channel ID (UC...), or @handle" />
-      <button id="loadBtn" class="primary" type="button">Load</button>
+      <div class="row">
+        <div class="small" id="status"></div>
+      </div>
     </div>
-    <div class="status" id="status"></div>
+
+    <div class="tabs" id="tabs" style="display:none">
+      <div class="tab active" data-tab="long">Long</div>
+      <div class="tab" data-tab="shorts">Shorts</div>
+      <div class="tab" data-tab="playlists">Playlists</div>
+    </div>
+
+    <div id="content"></div>
+
+    <div class="footer">© 2026 Alfan Co. – Designed and developed by Ramy Maraei</div>
   </div>
-
-  <div class="tabs" id="tabs" style="display:none">
-    <button class="tab-btn active" data-tab="long" type="button">Long</button>
-    <button class="tab-btn" data-tab="shorts" type="button">Shorts</button>
-    <button class="tab-btn" data-tab="playlists" type="button">Playlists</button>
-  </div>
-
-  <div id="content"></div>
-
-  <footer>© 2026 Alfan Co. – Designed and developed by Ramy Maraei</footer>
 
   <div class="toast" id="toast"></div>
 
@@ -301,15 +175,13 @@
   };
 
   function toast(msg){
-    if(!els.toast) return;
     els.toast.textContent = msg;
     els.toast.style.display = "block";
     clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(()=> els.toast.style.display="none", 2400);
+    window.__toastTimer = setTimeout(()=> els.toast.style.display="none", 2600);
   }
 
   function updateLogo(){
-    if(!els.brandLogo) return;
     const isDark = document.body.classList.contains("dark");
     els.brandLogo.src = isDark ? LOGO_DARK : LOGO_LIGHT;
   }
@@ -317,11 +189,11 @@
   function setTheme(mode){
     if(mode === "dark"){
       document.body.classList.add("dark");
-      if(els.themeBtn) els.themeBtn.textContent = "Light";
+      els.themeBtn.textContent = "Light";
       localStorage.setItem("theme","dark");
     }else{
       document.body.classList.remove("dark");
-      if(els.themeBtn) els.themeBtn.textContent = "Dark";
+      els.themeBtn.textContent = "Dark";
       localStorage.setItem("theme","light");
     }
     updateLogo();
@@ -329,23 +201,35 @@
 
   (function initTheme(){
     const saved = localStorage.getItem("theme");
-    setTheme(saved === "dark" ? "dark" : "light"); // default Light
+    if(saved === "dark") setTheme("dark");
+    else setTheme("light"); // default Light
   })();
 
-  if(els.themeBtn){
-    els.themeBtn.addEventListener("click", ()=>{
-      const isDark = document.body.classList.contains("dark");
-      setTheme(isDark ? "light" : "dark");
-    });
-  }
+  els.themeBtn.addEventListener("click", ()=>{
+    const isDark = document.body.classList.contains("dark");
+    setTheme(isDark ? "light" : "dark");
+  });
 
-  function normalizeFilename(name){
-    return (name || "file")
-      .replace(/[\\/:*?"<>|]+/g,' ')
-      .replace(/\s+/g,' ')
-      .trim()
-      .slice(0, 160);
-  }
+  els.resetBtn.addEventListener("click", ()=>{
+    state.tab = "long";
+    state.data = null;
+    state.channelRef = "";
+    els.channelInput.value = "";
+    els.tabs.style.display = "none";
+    els.content.innerHTML = "";
+    els.status.textContent = "";
+    els.downloadAllBtn.disabled = true;
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelector('.tab[data-tab="long"]').classList.add("active");
+  });
+
+  els.tabs.addEventListener("click", (e)=>{
+    const tab = e.target?.dataset?.tab;
+    if(!tab) return;
+    state.tab = tab;
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===tab));
+    render();
+  });
 
   async function api(path, opts={}){
     const url = API_BASE.replace(/\/$/,'') + path;
@@ -357,83 +241,56 @@
     return res;
   }
 
-  function setActiveTab(tab){
-    state.tab = tab;
-    document.querySelectorAll(".tab-btn, .tab").forEach(b=>{
-      const key = b.dataset.tab;
-      if(!key) return;
-      b.classList.toggle("active", key === tab);
-    });
-  }
-
-  if(els.tabs){
-    els.tabs.addEventListener("click", (e)=>{
-      const btn = e.target.closest(".tab-btn, .tab");
-      const tab = btn?.dataset?.tab;
-      if(!tab) return;
-      setActiveTab(tab);
-      render();
-    });
-  }
-
-  if(els.resetBtn){
-    els.resetBtn.addEventListener("click", ()=>{
-      state.tab = "long";
-      state.data = null;
-      state.channelRef = "";
-      if(els.channelInput) els.channelInput.value = "";
-      if(els.tabs) els.tabs.style.display = "none";
-      if(els.content) els.content.innerHTML = "";
-      if(els.status) els.status.textContent = "";
-      if(els.downloadAllBtn) els.downloadAllBtn.disabled = true;
-      setActiveTab("long");
-    });
-  }
-
-  if(els.downloadAllBtn){
-    // زر Download All Content: Thumbnail + Audio فقط (بدون Video)
-    els.downloadAllBtn.addEventListener("click", ()=>{
-      if(!state.channelRef) return;
-      const url = API_BASE.replace(/\/$/,'') + `/download/all?channel=${encodeURIComponent(state.channelRef)}`;
-      window.location.href = url;
-    });
+  function normalizeFilename(name){
+    return (name || "file")
+      .replace(/[\\/:*?"<>|]+/g,' ')
+      .replace(/\s+/g,' ')
+      .trim()
+      .slice(0, 160);
   }
 
   function renderCards(items, kind){
-    if(!els.content) return;
-
     if(!items?.length){
-      els.content.innerHTML = '<div style="text-align:center;color:gray;margin-top:20px;font-size:13px">No items found.</div>';
+      els.content.innerHTML = '<div class="small" style="margin-top:14px">No items found.</div>';
       return;
     }
-
     const grid = document.createElement("div");
-    grid.className = "videos-grid";
+    grid.className = "grid";
 
+    // IMPORTANT: render ALL items exactly as backend returns
     items.forEach(item=>{
-      const box = document.createElement("div");
-      box.className = "video";
+      const card = document.createElement("div");
+      card.className = "card";
 
       const img = document.createElement("img");
+      img.className = "thumb";
       img.loading = "lazy";
       img.src = item.thumbnail;
       img.alt = item.title || "";
 
+      const body = document.createElement("div");
+      body.className = "cbody";
+
       const title = document.createElement("div");
-      title.className = "video-title";
+      title.className = "title";
       title.textContent = item.title || "";
 
       const meta = document.createElement("div");
-      meta.className = "video-meta";
-
-      const btnRow = document.createElement("div");
-      btnRow.className = "btn-row";
+      meta.className = "meta";
 
       if(kind !== "playlists"){
         meta.innerHTML = `<span>Video ID: <b>${item.videoId}</b></span><span>Duration: <b>${item.durationText}</b></span>`;
+      }else{
+        meta.innerHTML = `<span>Playlist ID: <b>${item.playlistId}</b></span><span>Items: <b>${item.itemCount ?? "-"}</b></span>`;
+      }
 
+      const btns = document.createElement("div");
+      btns.className = "btns";
+
+      if(kind !== "playlists"){
         const b1 = document.createElement("button");
         b1.textContent = "Thumbnail";
+        b1.className = "secondary";
         b1.addEventListener("click", async ()=>{
           try{
             b1.disabled = true;
@@ -442,10 +299,8 @@
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
             a.download = normalizeFilename(item.title) + ".jpg";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(()=> URL.revokeObjectURL(a.href), 1500);
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
           }catch(err){
             toast("Thumbnail download failed");
           }finally{
@@ -455,7 +310,6 @@
 
         const b2 = document.createElement("button");
         b2.textContent = "Video";
-        b2.className = "primary";
         b2.addEventListener("click", ()=>{
           window.location.href = API_BASE.replace(/\/$/,'') + `/download/video?videoId=${encodeURIComponent(item.videoId)}`;
         });
@@ -466,26 +320,26 @@
           window.location.href = API_BASE.replace(/\/$/,'') + `/download/audio?videoId=${encodeURIComponent(item.videoId)}`;
         });
 
-        btnRow.appendChild(b1);
-        btnRow.appendChild(b2);
-        btnRow.appendChild(b3);
-      }else{
-        meta.innerHTML = `<span>Playlist ID: <b>${item.playlistId}</b></span><span>Items: <b>${item.itemCount ?? "-"}</b></span>`;
-
+        btns.appendChild(b1);
+        btns.appendChild(b2);
+        btns.appendChild(b3);
+      } else {
         const b = document.createElement("button");
         b.textContent = "Open";
-        b.className = "primary";
+        b.className = "secondary";
         b.addEventListener("click", ()=>{
           window.open(`https://www.youtube.com/playlist?list=${item.playlistId}`, "_blank");
         });
-        btnRow.appendChild(b);
+        btns.appendChild(b);
       }
 
-      box.appendChild(img);
-      box.appendChild(title);
-      box.appendChild(meta);
-      box.appendChild(btnRow);
-      grid.appendChild(box);
+      body.appendChild(title);
+      body.appendChild(meta);
+      body.appendChild(btns);
+
+      card.appendChild(img);
+      card.appendChild(body);
+      grid.appendChild(card);
     });
 
     els.content.innerHTML = "";
@@ -494,42 +348,40 @@
 
   function render(){
     if(!state.data) return;
-    if(els.tabs) els.tabs.style.display = "flex";
-
+    els.tabs.style.display = "flex";
     if(state.tab === "long") renderCards(state.data.long, "long");
     else if(state.tab === "shorts") renderCards(state.data.shorts, "shorts");
     else renderCards(state.data.playlists, "playlists");
   }
 
-  if(els.loadBtn){
-    els.loadBtn.addEventListener("click", async ()=>{
-      const ref = (els.channelInput?.value || "").trim();
-      if(!ref){
-        toast("Paste channel link or ID");
-        return;
-      }
+  // IMPORTANT: keep calling the WORKING endpoint you already had
+  els.downloadAllBtn.addEventListener("click", ()=>{
+    if(!state.channelRef) return;
+    const url = API_BASE.replace(/\/$/,'') + `/download/pagezip?channel=${encodeURIComponent(state.channelRef)}`;
+    window.location.href = url;
+  });
 
-      state.channelRef = ref;
-      if(els.status) els.status.textContent = "Loading...";
-      if(els.downloadAllBtn) els.downloadAllBtn.disabled = true;
+  els.loadBtn.addEventListener("click", async ()=>{
+    const ref = els.channelInput.value.trim();
+    if(!ref){ toast("Paste channel link or ID"); return; }
+    state.channelRef = ref;
 
-      try{
-        const r = await api(`/channel?ref=${encodeURIComponent(ref)}`);
-        const data = await r.json();
-        state.data = data;
+    els.status.textContent = "Loading...";
+    els.downloadAllBtn.disabled = true;
 
-        if(els.status){
-          els.status.textContent = data.channelTitle ? `Loaded: ${data.channelTitle}` : "Loaded.";
-        }
-        if(els.downloadAllBtn) els.downloadAllBtn.disabled = false;
-        setActiveTab("long");
-        render();
-      }catch(err){
-        if(els.status) els.status.textContent = "Failed to load channel.";
-        toast("Failed to load channel");
-      }
-    });
-  }
+    try{
+      const r = await api(`/channel?ref=${encodeURIComponent(ref)}`);
+      const data = await r.json();
+
+      state.data = data;
+      els.status.textContent = data.channelTitle ? `Loaded: ${data.channelTitle}` : "Loaded.";
+      els.downloadAllBtn.disabled = false;
+      render();
+    }catch(err){
+      els.status.textContent = "Failed to load channel.";
+      toast("Failed to load channel");
+    }
+  });
 </script>
 </body>
 </html>
