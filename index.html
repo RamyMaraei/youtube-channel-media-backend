@@ -276,10 +276,8 @@
   <div class="toast" id="toast"></div>
 
 <script>
-  // Backend (no keys here)
   const API_BASE = "https://youtube-channel-media-backend-production.up.railway.app";
 
-  // Logos (as you provided)
   const LOGO_LIGHT = "https://ramymaraei.github.io/banner-checker/ALFAN_LOGO-Small.png";
   const LOGO_DARK  = "https://ramymaraei.github.io/banner-checker/ALFAN_LOGO-LIGHT-Small.png";
 
@@ -303,6 +301,7 @@
   };
 
   function toast(msg){
+    if(!els.toast) return;
     els.toast.textContent = msg;
     els.toast.style.display = "block";
     clearTimeout(window.__toastTimer);
@@ -310,6 +309,7 @@
   }
 
   function updateLogo(){
+    if(!els.brandLogo) return;
     const isDark = document.body.classList.contains("dark");
     els.brandLogo.src = isDark ? LOGO_DARK : LOGO_LIGHT;
   }
@@ -317,11 +317,11 @@
   function setTheme(mode){
     if(mode === "dark"){
       document.body.classList.add("dark");
-      els.themeBtn.textContent = "Light";
+      if(els.themeBtn) els.themeBtn.textContent = "Light";
       localStorage.setItem("theme","dark");
     }else{
       document.body.classList.remove("dark");
-      els.themeBtn.textContent = "Dark";
+      if(els.themeBtn) els.themeBtn.textContent = "Dark";
       localStorage.setItem("theme","light");
     }
     updateLogo();
@@ -329,14 +329,15 @@
 
   (function initTheme(){
     const saved = localStorage.getItem("theme");
-    if(saved === "dark") setTheme("dark");
-    else setTheme("light"); // default Light
+    setTheme(saved === "dark" ? "dark" : "light"); // default Light
   })();
 
-  els.themeBtn.addEventListener("click", ()=>{
-    const isDark = document.body.classList.contains("dark");
-    setTheme(isDark ? "light" : "dark");
-  });
+  if(els.themeBtn){
+    els.themeBtn.addEventListener("click", ()=>{
+      const isDark = document.body.classList.contains("dark");
+      setTheme(isDark ? "light" : "dark");
+    });
+  }
 
   function normalizeFilename(name){
     return (name || "file")
@@ -358,39 +359,49 @@
 
   function setActiveTab(tab){
     state.tab = tab;
-    document.querySelectorAll(".tab-btn").forEach(b=>{
-      b.classList.toggle("active", b.dataset.tab === tab);
+    document.querySelectorAll(".tab-btn, .tab").forEach(b=>{
+      const key = b.dataset.tab;
+      if(!key) return;
+      b.classList.toggle("active", key === tab);
     });
   }
 
-  els.tabs.addEventListener("click", (e)=>{
-    const btn = e.target.closest(".tab-btn");
-    if(!btn) return;
-    setActiveTab(btn.dataset.tab);
-    render();
-  });
+  if(els.tabs){
+    els.tabs.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".tab-btn, .tab");
+      const tab = btn?.dataset?.tab;
+      if(!tab) return;
+      setActiveTab(tab);
+      render();
+    });
+  }
 
-  els.resetBtn.addEventListener("click", ()=>{
-    state.tab = "long";
-    state.data = null;
-    state.channelRef = "";
-    els.channelInput.value = "";
-    els.tabs.style.display = "none";
-    els.content.innerHTML = "";
-    els.status.textContent = "";
-    els.downloadAllBtn.disabled = true;
-    setActiveTab("long");
-  });
+  if(els.resetBtn){
+    els.resetBtn.addEventListener("click", ()=>{
+      state.tab = "long";
+      state.data = null;
+      state.channelRef = "";
+      if(els.channelInput) els.channelInput.value = "";
+      if(els.tabs) els.tabs.style.display = "none";
+      if(els.content) els.content.innerHTML = "";
+      if(els.status) els.status.textContent = "";
+      if(els.downloadAllBtn) els.downloadAllBtn.disabled = true;
+      setActiveTab("long");
+    });
+  }
 
-els.downloadAllBtn.addEventListener("click", ()=>{
-  if(!state.channelRef) return;
-  const url = API_BASE.replace(/\/$/,'') + `/download/all?channel=${encodeURIComponent(state.channelRef)}`;
-  window.location.href = url;
-});
-
-  });
+  if(els.downloadAllBtn){
+    // زر Download All Content: Thumbnail + Audio فقط (بدون Video)
+    els.downloadAllBtn.addEventListener("click", ()=>{
+      if(!state.channelRef) return;
+      const url = API_BASE.replace(/\/$/,'') + `/download/all?channel=${encodeURIComponent(state.channelRef)}`;
+      window.location.href = url;
+    });
+  }
 
   function renderCards(items, kind){
+    if(!els.content) return;
+
     if(!items?.length){
       els.content.innerHTML = '<div style="text-align:center;color:gray;margin-top:20px;font-size:13px">No items found.</div>';
       return;
@@ -434,7 +445,7 @@ els.downloadAllBtn.addEventListener("click", ()=>{
             document.body.appendChild(a);
             a.click();
             a.remove();
-            setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+            setTimeout(()=> URL.revokeObjectURL(a.href), 1500);
           }catch(err){
             toast("Thumbnail download failed");
           }finally{
@@ -483,38 +494,42 @@ els.downloadAllBtn.addEventListener("click", ()=>{
 
   function render(){
     if(!state.data) return;
-    els.tabs.style.display = "flex";
+    if(els.tabs) els.tabs.style.display = "flex";
 
     if(state.tab === "long") renderCards(state.data.long, "long");
     else if(state.tab === "shorts") renderCards(state.data.shorts, "shorts");
     else renderCards(state.data.playlists, "playlists");
   }
 
-  els.loadBtn.addEventListener("click", async ()=>{
-    const ref = els.channelInput.value.trim();
-    if(!ref){
-      toast("Paste channel link or ID");
-      return;
-    }
+  if(els.loadBtn){
+    els.loadBtn.addEventListener("click", async ()=>{
+      const ref = (els.channelInput?.value || "").trim();
+      if(!ref){
+        toast("Paste channel link or ID");
+        return;
+      }
 
-    state.channelRef = ref;
-    els.status.textContent = "Loading...";
-    els.downloadAllBtn.disabled = true;
+      state.channelRef = ref;
+      if(els.status) els.status.textContent = "Loading...";
+      if(els.downloadAllBtn) els.downloadAllBtn.disabled = true;
 
-    try{
-      const r = await api(`/channel?ref=${encodeURIComponent(ref)}`);
-      const data = await r.json();
-      state.data = data;
+      try{
+        const r = await api(`/channel?ref=${encodeURIComponent(ref)}`);
+        const data = await r.json();
+        state.data = data;
 
-      els.status.textContent = data.channelTitle ? `Loaded: ${data.channelTitle}` : "Loaded.";
-      els.downloadAllBtn.disabled = false;
-      setActiveTab("long");
-      render();
-    }catch(err){
-      els.status.textContent = "Failed to load channel.";
-      toast("Failed to load channel");
-    }
-  });
+        if(els.status){
+          els.status.textContent = data.channelTitle ? `Loaded: ${data.channelTitle}` : "Loaded.";
+        }
+        if(els.downloadAllBtn) els.downloadAllBtn.disabled = false;
+        setActiveTab("long");
+        render();
+      }catch(err){
+        if(els.status) els.status.textContent = "Failed to load channel.";
+        toast("Failed to load channel");
+      }
+    });
+  }
 </script>
 </body>
 </html>
