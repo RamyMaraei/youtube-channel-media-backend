@@ -245,7 +245,8 @@
   <div class="top-tools">
     <button id="themeBtn" class="tool-button" type="button">Dark</button>
     <button id="resetBtn" class="tool-button" type="button">Reset</button>
-    <button id="downloadAllBtn" class="tool-button" type="button" disabled>Download Page</button>
+    <button id="downloadAllBtn" class="tool-button" type="button" disabled>Download All Content</button>
+
   </div>
 
   <div class="logo-wrap">
@@ -381,10 +382,12 @@
     setActiveTab("long");
   });
 
-  els.downloadAllBtn.addEventListener("click", ()=>{
-    if(!state.channelRef) return;
-    const url = API_BASE.replace(/\/$/,'') + `/download/pagezip?channel=${encodeURIComponent(state.channelRef)}`;
-    window.location.href = url;
+els.downloadAllBtn.addEventListener("click", ()=>{
+  if(!state.channelRef) return;
+  const url = API_BASE.replace(/\/$/,'') + `/download/all?channel=${encodeURIComponent(state.channelRef)}`;
+  window.location.href = url;
+});
+
   });
 
   function renderCards(items, kind){
