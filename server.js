@@ -214,53 +214,59 @@ app.get("/download/audio", async (req,res)=>{
   streamYtDlp(args, res, `${videoId}.mp3`, "audio/mpeg");
 });
 
-app.get("/download/all", async (req, res) => {
-  try {
-    const { channel } = req.query;
-    if(!channel) return res.status(400).send("Missing channel");
+app.get("/download/pagezip", async (req,res)=>{
+  try{
+    const ref = String(req.query.channel||"").trim();
+    if(!ref) return res.status(400).send("Missing channel");
+    if(!YOUTUBE_API_KEY) return res.status(500).send("Server missing YOUTUBE_API_KEY");
 
-    const outputDir = `./tmp_${Date.now()}`;
-    const fs = require("fs");
-    const path = require("path");
-    const archiver = require("archiver");
-    const { execSync } = require("child_process");
+    const channelId = await resolveChannelId(ref);
+    const { ids } = await listUploadsVideoIds(channelId);
+    const videos = await fetchVideosDetails(ids);
 
-    fs.mkdirSync(outputDir);
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="channel_downloads.zip"`);
 
-    // احصل على قائمة الفيديوهات
-    const listCmd = `yt-dlp --flat-playlist -J ${channel}`;
-    const listJson = JSON.parse(execSync(listCmd).toString());
-
-    for(const entry of listJson.entries){
-      const videoUrl = `https://www.youtube.com/watch?v=${entry.id}`;
-      const safeTitle = entry.title.replace(/[\\/:*?"<>|]+/g,' ').trim();
-
-      // Thumbnail
-      execSync(`yt-dlp --skip-download --write-thumbnail -o "${outputDir}/${safeTitle}.%(ext)s" ${videoUrl}`);
-
-      // Audio mp3
-      execSync(`yt-dlp -x --audio-format mp3 -o "${outputDir}/${safeTitle}.mp3" ${videoUrl}`);
-    }
-
-    res.attachment("All_Content.zip");
-    const archive = archiver("zip");
+    const archive = archiver("zip", { zlib: { level: 6 } });
+    archive.on("error", err => { throw err; });
     archive.pipe(res);
 
-    fs.readdirSync(outputDir).forEach(file=>{
-      archive.file(path.join(outputDir, file), { name: file });
-    });
+    const limited = videos.slice(0, 80);
 
-    archive.finalize();
+    for (const v of limited){
+      const safe = (v.title || v.videoId).replace(/[\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,120);
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Failed to download all content");
+      if(v.thumbnail){
+        const img = await fetch(v.thumbnail);
+        if(img.ok){
+          const buf = Buffer.from(await img.arrayBuffer());
+          archive.append(buf, { name: `${safe}.jpg` });
+        }
+      }
+
+      const mp3Buf = await new Promise((resolve, reject)=>{
+        const url = "https://www.youtube.com/watch?v=" + v.videoId;
+        const p = spawn("yt-dlp", ["-x","--audio-format","mp3","--audio-quality","0","-o","-", url], { stdio:["ignore","pipe","pipe"] });
+        const chunks = [];
+        let stderr="";
+        p.stdout.on("data", d=> chunks.push(d));
+        p.stderr.on("data", d=> { stderr += d.toString(); if(stderr.length>4000) stderr=stderr.slice(-4000); });
+        p.on("close", code=>{
+          if(code===0) resolve(Buffer.concat(chunks));
+          else reject(new Error(stderr || ("yt-dlp failed " + code)));
+        });
+      }).catch(()=> null);
+
+      if(mp3Buf){
+        archive.append(mp3Buf, { name: `${safe}.mp3` });
+      }
+    }
+
+    await archive.finalize();
+  }catch(err){
+    res.status(500).send(err?.message || "Error");
   }
 });
 
-
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => console.log("Listening on " + PORT));
-
-
-
